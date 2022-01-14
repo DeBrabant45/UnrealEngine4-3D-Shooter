@@ -6,6 +6,7 @@
 #include "Sound/SoundCue.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "ShooterCharacter/CrosshairComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() : 
@@ -23,14 +24,7 @@ AShooterCharacter::AShooterCharacter() :
 	CameraDefaultFieldOfView(0.f),
 	CameraZoomedFieldOfView(40.f),
 	CameraCurrentFieldOfView(0.f),
-	ZoomInterpolationSpeed(20.f),
-	CrosshairSpreadMultiplier(0.f),
-	CrosshairVelocityFactor(0.f),
-	CrosshairInAirFactor(0.f),
-	CrosshairAimFactor(0.f),
-	CrosshairShootingFactor(0.f),
-	ShootTimeDuration(0.05f),
-	bIsFiringBullet(false)
+	ZoomInterpolationSpeed(20.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -59,6 +53,7 @@ AShooterCharacter::AShooterCharacter() :
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	WeaponParticleComponent = CreateDefaultSubobject<UWeaponParticleComponent>(TEXT("WeaponParticleComponent"));
+	CrosshairComponent = CreateDefaultSubobject<UCrosshairComponent>(TEXT("CrosshairComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -146,7 +141,7 @@ void AShooterCharacter::FireWeapon()
 		SpawnMuzzleFlash(SocketTransform);
 		PlayFireSound();
 		PlayFireAnimation();
-		StartCrosshairBulletFireTimer();
+		CrosshairComponent->StartCrosshairBulletFireTimer();
 	}
 }
 
@@ -276,89 +271,12 @@ void AShooterCharacter::SetLookRates()
 	}
 }
 
-void AShooterCharacter::CalculateCrosshairInAirFactor(float DeltaTime)
-{
-	if (GetCharacterMovement()->IsFalling())
-	{
-		const float TargetValue = 2.25f;
-		const float SpeedValue = 2.25f;
-		CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, TargetValue, DeltaTime, SpeedValue); 
-	}
-	else
-	{
-		CrosshairInAirFactor = FMath::FInterpTo(CrosshairAimFactor, 0.f, DeltaTime, 30.f);
-	}
-}
-
-void AShooterCharacter::CalculateCrosshairAimFactor(float DeltaTime)
-{
-	if (bIsAiming)
-	{
-		float targetValue = 0.6f;
-		float targetSpeed = 30.f;
-		CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, targetValue, DeltaTime, targetSpeed);
-	}
-	else
-	{
-		CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.f, DeltaTime, 30.f);
-	}
-}
-
-void AShooterCharacter::CalculateCrosshairVelocityFactor()
-{
-	FVector2D WalkSpeedRange{ 0.f, 600.f };
-	FVector2D VelocityMultiplierRange{ 0.f, 1.f };
-	FVector CharacterVelocity{ GetVelocity() };
-	CharacterVelocity.Z = 0.f;
-	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(
-		WalkSpeedRange,
-		VelocityMultiplierRange,
-		CharacterVelocity.Size());
-}
-
-void AShooterCharacter::CalculateCrosshairShootingFactor(float DeltaTime)
-{
-	if (bIsFiringBullet)
-	{
-		CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.3f, DeltaTime, 60.f);
-	}
-	else
-	{
-		CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.f, DeltaTime, 60.f);
-	}
-}
-
-void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
-{
-	CalculateCrosshairVelocityFactor();
-	CalculateCrosshairInAirFactor(DeltaTime);
-	CalculateCrosshairAimFactor(DeltaTime);
-	CalculateCrosshairShootingFactor(DeltaTime);
-	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
-}
-
-void AShooterCharacter::StartCrosshairBulletFireTimer()
-{
-	bIsFiringBullet = true;
-	GetWorldTimerManager().SetTimer(
-		CrosshairShootTimer,
-		this,
-		&AShooterCharacter::FinishCrosshairBulletFire,
-		ShootTimeDuration);
-}
-
-void AShooterCharacter::FinishCrosshairBulletFire()
-{
-	bIsFiringBullet = false;
-}
-
-
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	SetCurrentCameraFieldOfView(DeltaTime);
 	SetLookRates();
-	CalculateCrosshairSpread(DeltaTime);
+	CrosshairComponent->CalculateCrosshairSpread(DeltaTime, GetVelocity(), GetCharacterMovement()->IsFalling(), bIsAiming);
 }
 
 // Called to bind functionality to input
@@ -381,9 +299,4 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	
 	PlayerInputComponent->BindAction("AimButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("AimButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
-}
-
-float AShooterCharacter::GetCrosshairSpreadMultiplier() const
-{
-	return CrosshairSpreadMultiplier;
 }

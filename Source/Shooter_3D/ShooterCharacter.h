@@ -30,14 +30,6 @@ protected:
 	void AimingButtonReleased();
 	void SetCurrentCameraFieldOfView(float DeltaTime);
 	void SetLookRates();
-	void CalculateCrosshairInAirFactor(float DeltaTime);
-	void CalculateCrosshairAimFactor(float DeltaTime);
-	void CalculateCrosshairVelocityFactor();
-	void CalculateCrosshairShootingFactor(float DeltaTime);
-	void CalculateCrosshairSpread(float DeltaTime);
-	void StartCrosshairBulletFireTimer();
-	UFUNCTION()
-	void FinishCrosshairBulletFire();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -108,30 +100,13 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float ZoomInterpolationSpeed;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairSpreadMultiplier;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairVelocityFactor;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairInAirFactor;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairAimFactor;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairShootingFactor;
-
-	float ShootTimeDuration;
-	bool bIsFiringBullet;
-	FTimerHandle CrosshairShootTimer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
+	class UCrosshairComponent* CrosshairComponent;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE UCrosshairComponent* GetCrosshairComponent() const { return CrosshairComponent; }
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
-	UFUNCTION(BlueprintCallable)
-	float GetCrosshairSpreadMultiplier() const;
 };
