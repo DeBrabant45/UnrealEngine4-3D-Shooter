@@ -1,5 +1,6 @@
 #include "Item.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 
 AItem::AItem()
 {
@@ -8,11 +9,14 @@ AItem::AItem()
 	SetRootComponent(ItemMesh);
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	CollisionBox->SetupAttachment(ItemMesh);
+	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
+	PickupWidget->SetupAttachment(GetRootComponent());
 }
 
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
+	PickupWidget->SetVisibility(false);
 }
 
 void AItem::Tick(float DeltaTime)
