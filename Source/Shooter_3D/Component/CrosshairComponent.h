@@ -20,37 +20,41 @@ protected:
 	void CalculateCrosshairShootingFactor(float DeltaTime);
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
+	void GetViewportSize();
+	bool IsScreenToWorld();
+	void SetCrosshairLocation();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairSpreadMultiplier;
-	
+	float CrosshairSpreadMultiplier{ 0.f };
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairVelocityFactor;
-
+	float CrosshairVelocityFactor{ 0.f };
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairInAirFactor;
-
+	float CrosshairInAirFactor{ 0.f };
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairAimFactor;
-
+	float CrosshairAimFactor{ 0.f };
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
-	float CrosshairShootingFactor;
+	float CrosshairShootingFactor{ 0.f };
+	UPROPERTY()
+	bool bIsFiringBullet{ false };
+	UPROPERTY()
+	float ShootTimeDuration{ 0.05f };
+	UPROPERTY()
+	FTimerHandle CrosshairShootTimer{};
+	UPROPERTY()
+	FVector2D ViewportSize;
+	UPROPERTY()
+	FVector CrosshairWorldPosition;
+	UPROPERTY()
+	FVector CrosshairWorldDirection;
+	UPROPERTY()
+	FVector2D CrosshairLocation;
 
-	bool bIsFiringBullet;
-	
-	float ShootTimeDuration;
-	
-	FTimerHandle CrosshairShootTimer;
-
-public:	
-	// Called every frame
+public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
 	void CalculateCrosshairSpread(float DeltaTime, FVector CharacterVelocity, bool bIsFalling, bool bIsAiming);
-
 	void StartCrosshairBulletFireTimer();
-	
+	bool IsTraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
 	UFUNCTION(BlueprintCallable)
-	float GetCrosshairSpreadMultiplier() const;
+	float GetCrosshairSpreadMultiplier() const { return CrosshairSpreadMultiplier; }
 };

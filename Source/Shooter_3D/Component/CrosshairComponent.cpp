@@ -1,15 +1,9 @@
 #include "CrosshairComponent.h"
+#include "Kismet/GameplayStatics.h"
 
-UCrosshairComponent::UCrosshairComponent() :
-	CrosshairSpreadMultiplier(0.f),
-	CrosshairVelocityFactor(0.f),
-	CrosshairInAirFactor(0.f),
-	CrosshairAimFactor(0.f),
-	CrosshairShootingFactor(0.f),
-	ShootTimeDuration(0.05f),
-	bIsFiringBullet(false)
+UCrosshairComponent::UCrosshairComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+
 }
 
 void UCrosshairComponent::BeginPlay()
@@ -78,11 +72,6 @@ void UCrosshairComponent::CalculateCrosshairSpread(float DeltaTime, FVector Char
 	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
 }
 
-float UCrosshairComponent::GetCrosshairSpreadMultiplier() const
-{
-	return CrosshairSpreadMultiplier;
-}
-
 void UCrosshairComponent::StartCrosshairBulletFireTimer()
 {
 	bIsFiringBullet = true;
@@ -96,6 +85,45 @@ void UCrosshairComponent::StartCrosshairBulletFireTimer()
 void UCrosshairComponent::FinishCrosshairBulletFire()
 {
 	bIsFiringBullet = false;
+}
+
+void UCrosshairComponent::GetViewportSize()
+{
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+}
+
+bool UCrosshairComponent::IsScreenToWorld()
+{
+	return UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
+		CrosshairLocation, CrosshairWorldPosition, CrosshairWorldDirection);
+}
+
+void UCrosshairComponent::SetCrosshairLocation()
+{
+	FVector2D Temp(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	CrosshairLocation = Temp;
+}
+
+bool UCrosshairComponent::IsTraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation)
+{
+	GetViewportSize();
+	SetCrosshairLocation();
+	if (IsScreenToWorld())
+	{
+		const FVector Start { CrosshairWorldPosition };
+		const FVector End { Start + CrosshairWorldDirection * 50000.f };
+		OutHitLocation = End;
+		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+		if (OutHitResult.bBlockingHit)
+		{
+			OutHitLocation = OutHitResult.Location;
+			return true;
+		}
+	}
+	return false;
 }
 
 void UCrosshairComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

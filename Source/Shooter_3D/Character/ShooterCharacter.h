@@ -34,6 +34,8 @@ protected:
 	void StartFireTimer();
 	UFUNCTION()
 	void AutoFireReset();
+	bool IsTraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
+	void TraceForItems();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -105,7 +107,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float ZoomInterpolationSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
 	class UCrosshairComponent* CrosshairComponent;
 	
 	bool bIsFireButtonPressed;
@@ -116,9 +118,16 @@ private:
 
 	FTimerHandle AutoFireTimer;
 
+	bool bShouldTraceForItems;
+
+	int8 OverlappedItemCount;
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	FORCEINLINE UCrosshairComponent* GetCrosshairComponent() const { return CrosshairComponent; }
+	UFUNCTION(BlueprintCallable)
+	UCrosshairComponent* GetCrosshairComponent() const { return CrosshairComponent; }
 	FORCEINLINE bool GetAiming() const { return bIsAiming; }
+	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
+	void IncrementOverlappedItemCount(int8 Amount);
 };
