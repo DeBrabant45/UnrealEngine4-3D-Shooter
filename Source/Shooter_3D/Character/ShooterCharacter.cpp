@@ -7,8 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Shooter_3D/Component/CrosshairComponent.h"
+#include "Shooter_3D/Component/ItemTraceComponent.h"
 #include "Shooter_3D/Component/WeaponParticleComponent.h"
-#include "Shooter_3D/Item/Item.h"
 #include "Sound/SoundCue.h"
 
 // Sets default values
@@ -30,8 +30,7 @@ AShooterCharacter::AShooterCharacter() :
 	ZoomInterpolationSpeed(20.f),
 	AutomaticFireRate(0.1f),
 	bShouldFire(true),
-	bIsFireButtonPressed(false),
-	bShouldTraceForItems(false)
+	bIsFireButtonPressed(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -61,6 +60,7 @@ AShooterCharacter::AShooterCharacter() :
 
 	WeaponParticleComponent = CreateDefaultSubobject<UWeaponParticleComponent>(TEXT("WeaponParticleComponent"));
 	CrosshairComponent = CreateDefaultSubobject<UCrosshairComponent>(TEXT("CrosshairComponent"));
+	ItemTraceComponent = CreateDefaultSubobject<UItemTraceComponent>(TEXT("ItemTrace"));
 }
 
 // Called when the game starts or when spawned
@@ -291,22 +291,12 @@ void AShooterCharacter::AutoFireReset()
 
 void AShooterCharacter::TraceForItems()
 {
-	if (bShouldTraceForItems)
+	if (ItemTraceComponent->GetShouldTraceForItems())
 	{
 		FHitResult ItemTraceResult;
 		FVector HitLocation;
 		CrosshairComponent->IsTraceUnderCrosshairs(ItemTraceResult, HitLocation);
-		if (ItemTraceResult.bBlockingHit)
-		{
-			AItem* HitItem = Cast<AItem>(ItemTraceResult.Actor);
-			if (HitItem)
-			{
-				if (HitItem->GetPickupWidget())
-				{
-					HitItem->GetPickupWidget()->SetVisibility(true);
-				}
-			}
-		}
+		ItemTraceComponent->TraceForItems(ItemTraceResult);
 	}
 }
 
@@ -340,18 +330,4 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	
 	PlayerInputComponent->BindAction("AimButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("AimButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
-}
-
-void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
-{
-	if (GetOverlappedItemCount() + Amount <= 0)
-	{
-		OverlappedItemCount = 0;
-		bShouldTraceForItems = false;
-	}
-	else
-	{
-		OverlappedItemCount += Amount;
-		bShouldTraceForItems = true;
-	}
 }

@@ -34,7 +34,6 @@ protected:
 	void StartFireTimer();
 	UFUNCTION()
 	void AutoFireReset();
-	bool IsTraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
 	void TraceForItems();
 
 public:	
@@ -118,16 +117,15 @@ private:
 
 	FTimerHandle AutoFireTimer;
 
-	bool bShouldTraceForItems;
-
-	int8 OverlappedItemCount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ItemTrace, meta = (AllowPrivateAccess = "true"))
+	class UItemTraceComponent* ItemTraceComponent;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE bool GetAiming() const { return bIsAiming; }
 	UFUNCTION(BlueprintCallable)
 	UCrosshairComponent* GetCrosshairComponent() const { return CrosshairComponent; }
-	FORCEINLINE bool GetAiming() const { return bIsAiming; }
-	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
-	void IncrementOverlappedItemCount(int8 Amount);
+	UFUNCTION(BlueprintCallable)
+	UItemTraceComponent* GetItemTraceComponent() const { return ItemTraceComponent; }
 };

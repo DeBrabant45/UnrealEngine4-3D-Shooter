@@ -14,7 +14,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	void CalculateCrosshairInAirFactor(float DeltaTime, bool IsFalling);
+	void CalculateCrosshairInAirFactor(float DeltaTime, bool bIsFalling);
 	void CalculateCrosshairAimFactor(float DeltaTime, bool bIsAiming);
 	void CalculateCrosshairVelocityFactor(FVector CharacterVelocity);
 	void CalculateCrosshairShootingFactor(float DeltaTime);

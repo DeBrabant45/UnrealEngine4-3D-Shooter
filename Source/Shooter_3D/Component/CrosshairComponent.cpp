@@ -1,5 +1,6 @@
 #include "CrosshairComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Shooter_3D/Character/ShooterCharacter.h"
 
 UCrosshairComponent::UCrosshairComponent()
 {
@@ -11,9 +12,9 @@ void UCrosshairComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UCrosshairComponent::CalculateCrosshairInAirFactor(float DeltaTime, bool IsFalling)
+void UCrosshairComponent::CalculateCrosshairInAirFactor(const float DeltaTime, const bool bIsFalling)
 {
-	if (IsFalling)
+	if (bIsFalling)
 	{
 		const float TargetValue = 2.25f;
 		const float SpeedValue = 2.25f;
@@ -25,7 +26,7 @@ void UCrosshairComponent::CalculateCrosshairInAirFactor(float DeltaTime, bool Is
 	}
 }
 
-void UCrosshairComponent::CalculateCrosshairAimFactor(float DeltaTime, bool bIsAiming)
+void UCrosshairComponent::CalculateCrosshairAimFactor(const float DeltaTime, const bool bIsAiming)
 {
 	if (bIsAiming)
 	{
@@ -43,7 +44,6 @@ void UCrosshairComponent::CalculateCrosshairVelocityFactor(FVector CharacterVelo
 {
 	FVector2D WalkSpeedRange{ 0.f, 600.f };
 	FVector2D VelocityMultiplierRange{ 0.f, 1.f };
-	//FVector CharacterVelocity{  };
 	CharacterVelocity.Z = 0.f;
 	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(
 		WalkSpeedRange,
@@ -51,7 +51,7 @@ void UCrosshairComponent::CalculateCrosshairVelocityFactor(FVector CharacterVelo
 		CharacterVelocity.Size());
 }
 
-void UCrosshairComponent::CalculateCrosshairShootingFactor(float DeltaTime)
+void UCrosshairComponent::CalculateCrosshairShootingFactor(const float DeltaTime)
 {
 	if (bIsFiringBullet)
 	{
@@ -63,7 +63,7 @@ void UCrosshairComponent::CalculateCrosshairShootingFactor(float DeltaTime)
 	}
 }
 
-void UCrosshairComponent::CalculateCrosshairSpread(float DeltaTime, FVector CharacterVelocity, bool bIsFalling, bool bIsAiming)
+void UCrosshairComponent::CalculateCrosshairSpread(const float DeltaTime, const FVector CharacterVelocity, const bool bIsFalling, const bool bIsAiming)
 {
 	CalculateCrosshairVelocityFactor(CharacterVelocity);
 	CalculateCrosshairInAirFactor(DeltaTime, bIsFalling);
