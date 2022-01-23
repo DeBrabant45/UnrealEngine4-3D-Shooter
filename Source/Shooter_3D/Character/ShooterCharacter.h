@@ -35,6 +35,8 @@ protected:
 	UFUNCTION()
 	void AutoFireReset();
 	void TraceForItems();
+	class AWeapon* SpawnDefaultWeapon();
+	void EquipWeapon(AWeapon* WeaponToEquip);
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -119,6 +121,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ItemTrace, meta = (AllowPrivateAccess = "true"))
 	class UItemTraceComponent* ItemTraceComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	AWeapon* EquippedWeapon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

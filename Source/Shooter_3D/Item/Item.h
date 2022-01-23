@@ -1,18 +1,9 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "EItemRarity.h"
+#include "EItemState.h"
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
-
-UENUM(BlueprintType)
-enum class EItemRarity : uint8
-{
-	Eir_Damaged UMETA(DisplayName = "Damaged"),
-	Eir_Common UMETA(DisplayName = "Common"),
-	Eir_Uncommon UMETA(DisplayName = "Uncommon"),
-	Eir_Rare UMETA(DisplayName = "Rare"),
-	Eir_Legendary UMETA(DisplayName = "Legendary"),
-	Eir_Max UMETA(DisplayName = "DefaultMax")
-};
 
 UCLASS()
 class SHOOTER_3D_API AItem : public AActor
@@ -54,11 +45,18 @@ private:
 	int32 ItemCount{0};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	EItemRarity ItemRarity{EItemRarity::Eir_Common};
+	EItemRarity ItemRarity{ EItemRarity::Eir_Common };
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	TArray<bool> ActiveStars;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	EItemState ItemState{ EItemState::Eis_Pickup };
+
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
+	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
+	FORCEINLINE UBoxComponent* GetCollisionBox() const { return CollisionBox; }
+	FORCEINLINE EItemState GetItemState() const { return ItemState; }
+	FORCEINLINE void SetItemState(EItemState State) { ItemState = State; }
 };

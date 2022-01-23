@@ -1,5 +1,7 @@
 #include "ShooterCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -9,6 +11,7 @@
 #include "Shooter_3D/Component/CrosshairComponent.h"
 #include "Shooter_3D/Component/ItemTraceComponent.h"
 #include "Shooter_3D/Component/WeaponParticleComponent.h"
+#include "Shooter_3D/Item/Weapon.h"
 #include "Sound/SoundCue.h"
 
 // Sets default values
@@ -72,6 +75,7 @@ void AShooterCharacter::BeginPlay()
 		CameraDefaultFieldOfView = GetFollowCamera()->FieldOfView;
 		CameraCurrentFieldOfView = CameraDefaultFieldOfView;
 	}
+	EquipWeapon(SpawnDefaultWeapon());
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -81,7 +85,6 @@ void AShooterCharacter::MoveForward(float Value)
 		// find out which way is forward
 		const FRotator ControllerRotation{ Controller->GetControlRotation() };
 		const FRotator YawControllerRotation{ 0, ControllerRotation.Yaw, 0 };
-
 		const FVector ControllerXDirection{ FRotationMatrix{YawControllerRotation}.GetUnitAxis(EAxis::X) };
 		AddMovementInput(ControllerXDirection, Value);
 	}
@@ -300,6 +303,27 @@ void AShooterCharacter::TraceForItems()
 	}
 }
 
+AWeapon* AShooterCharacter::SpawnDefaultWeapon()
+{
+	return (DefaultWeaponClass != nullptr) ? GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass) : nullptr;
+}
+
+void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
+{
+	if (WeaponToEquip != nullptr)
+	{
+		WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		//WeaponToEquip->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+		if (HandSocket != nullptr)
+		{
+			HandSocket->AttachActor(WeaponToEquip, GetMesh());
+		}
+		EquippedWeapon = WeaponToEquip;
+		EquippedWeapon->SetItemState(EItemState::Eis_Equipped);
+	}
+}
+
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -309,7 +333,6 @@ void AShooterCharacter::Tick(float DeltaTime)
 	TraceForItems();
 }
 
-// Called to bind functionality to input
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
