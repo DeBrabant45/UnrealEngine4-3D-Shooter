@@ -21,6 +21,7 @@ protected:
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	void SetActiveStars();
 	void EnableStars(int32 Amount);
+	void SetItemProperties(EItemState State);
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -55,8 +56,9 @@ private:
 
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
+	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 	FORCEINLINE UBoxComponent* GetCollisionBox() const { return CollisionBox; }
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }
-	FORCEINLINE void SetItemState(EItemState State) { ItemState = State; }
+	void SetItemState(EItemState State);
 };

@@ -312,8 +312,6 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (WeaponToEquip != nullptr)
 	{
-		WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		//WeaponToEquip->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
 		if (HandSocket != nullptr)
 		{
@@ -322,6 +320,26 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 		EquippedWeapon = WeaponToEquip;
 		EquippedWeapon->SetItemState(EItemState::Eis_Equipped);
 	}
+}
+
+void AShooterCharacter::DropWeapon()
+{
+	if (EquippedWeapon != nullptr)
+	{
+		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
+		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
+		EquippedWeapon->SetItemState(EItemState::Eis_Falling);
+	}
+}
+
+void AShooterCharacter::SelectButtonPressed()
+{
+	DropWeapon();
+}
+
+void AShooterCharacter::SelectButtonReleased()
+{
+
 }
 
 void AShooterCharacter::Tick(float DeltaTime)
@@ -353,4 +371,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	
 	PlayerInputComponent->BindAction("AimButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("AimButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
+
+	PlayerInputComponent->BindAction("Select", IE_Pressed, this, &AShooterCharacter::SelectButtonPressed);
+	PlayerInputComponent->BindAction("Select", IE_Released, this, &AShooterCharacter::SelectButtonReleased);
 }
