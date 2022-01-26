@@ -329,6 +329,7 @@ void AShooterCharacter::DropWeapon()
 		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
 		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
 		EquippedWeapon->SetItemState(EItemState::Eis_Falling);
+		EquippedWeapon->ThrowWeapon();
 	}
 }
 
@@ -339,7 +340,18 @@ void AShooterCharacter::SelectButtonPressed()
 
 void AShooterCharacter::SelectButtonReleased()
 {
+	if (ItemTraceComponent->GetTraceHitItemCurrentFrame() != nullptr)
+	{
+		auto TraceHitWeapon = Cast<AWeapon>(ItemTraceComponent->GetTraceHitItemCurrentFrame());
+		SwapWeapon(TraceHitWeapon);
+	}
+}
 
+void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
+{
+	DropWeapon();
+	EquipWeapon(WeaponToSwap);
+	ItemTraceComponent->ResetTraceHitItems();
 }
 
 void AShooterCharacter::Tick(float DeltaTime)

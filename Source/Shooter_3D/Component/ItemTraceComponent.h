@@ -21,11 +21,15 @@ private:
 	int8 OverlappedItemCount;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 	class AItem* TraceHitItemLastFrame;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	AItem* TraceHitItemCurrentFrame;
 
 
 public:
 	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
 	FORCEINLINE bool GetShouldTraceForItems() const { return bShouldTraceForItems; }
+	FORCEINLINE AItem* GetTraceHitItemCurrentFrame() const { return TraceHitItemCurrentFrame; }
 	void IncrementOverlappedItemCount(int8 Amount);
 	void TraceForItems(FHitResult ItemTraceResult);
+	void ResetTraceHitItems();
 };

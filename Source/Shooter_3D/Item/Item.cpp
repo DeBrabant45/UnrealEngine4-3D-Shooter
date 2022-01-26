@@ -12,6 +12,7 @@ AItem::AItem()
 	SetRootComponent(ItemMesh);
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	PickupWidget->SetupAttachment(GetRootComponent());
+	PickupWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	CollisionBox->SetupAttachment(GetRootComponent());
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -107,6 +108,7 @@ void AItem::SetItemProperties(EItemState State)
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
 	case EItemState::Eis_Equipped:
+		PickupWidget->SetVisibility(false);
 		ItemMesh->SetSimulatePhysics(false);
 		ItemMesh->SetVisibility(true);
 		ItemMesh->SetEnableGravity(false);

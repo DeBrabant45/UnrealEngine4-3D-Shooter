@@ -40,6 +40,7 @@ protected:
 	void DropWeapon();
 	void SelectButtonPressed();
 	void SelectButtonReleased();
+	void SwapWeapon(AWeapon* WeaponToSwap);
 
 public:	
 	virtual void Tick(float DeltaTime) override;

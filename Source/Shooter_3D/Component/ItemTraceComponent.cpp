@@ -34,27 +34,33 @@ void UItemTraceComponent::TraceForItems(FHitResult ItemTraceResult)
 	{
 		if (ItemTraceResult.bBlockingHit)
 		{
-			AItem* HitItem = Cast<AItem>(ItemTraceResult.Actor);
-			if (HitItem)
+			TraceHitItemCurrentFrame = Cast<AItem>(ItemTraceResult.Actor);
+			if (TraceHitItemCurrentFrame)
 			{
-				if (HitItem->GetPickupWidget())
+				if (TraceHitItemCurrentFrame->GetPickupWidget())
 				{
-					HitItem->GetPickupWidget()->SetVisibility(true);
+					TraceHitItemCurrentFrame->GetPickupWidget()->SetVisibility(true);
 				}
 			}
 
 			if (TraceHitItemLastFrame != nullptr)
 			{
-				if (HitItem != TraceHitItemLastFrame)
+				if (TraceHitItemCurrentFrame != TraceHitItemLastFrame)
 				{
 					TraceHitItemLastFrame->GetPickupWidget()->SetVisibility(false);
 				}
 			}
-			TraceHitItemLastFrame = HitItem;
+			TraceHitItemLastFrame = TraceHitItemCurrentFrame;
 		}
 	}
 	else if (TraceHitItemLastFrame != nullptr)
 	{
 		TraceHitItemLastFrame->GetPickupWidget()->SetVisibility(false);
 	}
+}
+
+void UItemTraceComponent::ResetTraceHitItems()
+{
+	TraceHitItemCurrentFrame = nullptr;
+	TraceHitItemLastFrame = nullptr;
 }
